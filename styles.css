@@ -229,7 +229,7 @@ ul {
     left: 0;
     width: 100%;
     padding: 20px 0;
-    background-color: rgba(255, 255, 255, 0.95);
+    background-color: rgb(255, 255, 255);
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
@@ -304,10 +304,16 @@ ul {
 /* -------------------------
    1) HAMBURGER BUTTON
    ------------------------- */
-   .hamburger {
+ /* Header debe tener position relative */
+header {
+    position: relative;
+}
+
+.hamburger {
     display: none;               /* sólo en móvil */
-    position: fixed;
-    top: 20px;
+    position: absolute;          /* permite que se posicione relativo al header */
+    top: 50%;                    /* centrado vertical */
+    transform: translateY(-50%); /* completa el centrado vertical */
     right: 20px;
     left: auto;                  /* por si hubiese un left heredado */
     width: 30px;
@@ -336,7 +342,7 @@ ul {
 .hamburger-line:nth-child(2) { top: 50%; transform: translateY(-50%); }
 .hamburger-line:nth-child(3) { bottom: 0; }
 
-/* Estado “X” + animación extra */
+/* Estado "X" + animación extra */
 .hamburger.active {
     animation: wobble 0.5s ease;
 }
@@ -354,10 +360,10 @@ ul {
 }
 
 @keyframes wobble {
-    0%   { transform: scale(1); }
-    30%  { transform: scale(1.1) rotate(2deg); }
-    60%  { transform: scale(0.95) rotate(-2deg); }
-    100% { transform: scale(1); }
+    0%   { transform: translateY(-50%) scale(1); }  /* Mantiene el centrado vertical */
+    30%  { transform: translateY(-50%) scale(1.1) rotate(2deg); }
+    60%  { transform: translateY(-50%) scale(0.95) rotate(-2deg); }
+    100% { transform: translateY(-50%) scale(1); }
 }
 
 /* -------------------------
@@ -372,44 +378,43 @@ ul {
       justify-content: center;
   }
 
-  /* Panel deslizable */
+  /* Panel a pantalla completa */
   .nav {
       position: fixed;
       top: 0;
-      right: 0;
-      left: auto;                   /* forzar que no use left */
-      width: 70%;
-      max-width: 300px;
+      left: 0;
+      width: 100%;          /* ocupa todo el ancho */
       height: 100vh;
-      background-color: rgba(255,255,255,0.98);
+      background-color: rgb(255, 255, 255);
       backdrop-filter: blur(15px);
       -webkit-backdrop-filter: blur(15px);
-      transform: translateX(100%);
+      transform: translateY(-100%); 
       transition: transform 0.4s cubic-bezier(0.4,0,0.2,1);
       padding: 100px 30px 40px;
       display: flex;
       flex-direction: column;
+      align-items: center; 
+      justify-content: center; 
       gap: 20px;
-      box-shadow: -5px 0 15px rgba(0,0,0,0.1);
       z-index: 999;
       overflow-y: auto;
   }
 
   /* Abre el panel */
   .nav.active {
-      transform: translateX(0);
-      box-shadow: -10px 0 30px rgba(0,0,0,0.15);
+      transform: translateY(0);
   }
 
-  /* Links con “stagger” */
+  /* Links con "stagger" */
   .nav a {
       --i: 0;
       font-size: 1.1rem;
       padding: 12px 0;
-      transform: translateX(20px);
+      transform: translateY(20px); /* cambiado a Y para que coincida con la dirección de entrada */
       opacity: 0;
       transition: transform 0.4s ease, opacity 0.4s ease;
       width: 100%;
+      text-align: center;      /* centrar el texto */
       border-bottom: 1px solid rgba(0,0,0,0.05);
   }
   .nav a:nth-child(1) { --i: 1; }
@@ -419,34 +424,20 @@ ul {
   /* añade más `nth-child` si hay más enlaces */
 
   .nav.active a {
-      transform: translateX(0);
+      transform: translateY(0);
       opacity: 1;
       transition-delay: calc(var(--i) * 0.08s);
   }
   .nav a:hover {
       color: var(--primary-color-start);
-      transform: translateX(5px);
+      transform: translateY(-5px); /* cambio de dirección para coincidir con el eje Y */
   }
 
-  /* Overlay de fondo */
+  /* Overlay de fondo - ya no necesario porque el menú ocupa toda la pantalla */
   .nav-overlay {
-      position: fixed;
-      top: 0; left: 0;
-      width: 100%; height: 100%;
-      background-color: rgba(0,0,0,0.5);
-      backdrop-filter: blur(5px);
-      z-index: 998;
-      pointer-events: none;
-      opacity: 0;
-      transition: opacity 0.4s ease;
-  }
-  .nav-overlay.active {
-      pointer-events: all;
-      opacity: 1;
+      display: none; /* podemos ocultarlo ya que el menú ocupa toda la pantalla */
   }
 }
-
-
 /* Hero Section */
 .hero {
     padding: 180px 0 100px;
@@ -490,11 +481,45 @@ ul {
     50% { transform: translateY(-20px); }
 }
 
+/* Contenedor de botones */
 .hero-buttons {
     display: flex;
-    gap: 20px;
+    flex-direction: row;     /* forzar dirección horizontal */
+    justify-content: center; /* centrar horizontalmente */
+    align-items: center;     /* alinear verticalmente */
+    gap: 20px;               /* espacio entre botones */
     margin-top: 30px;
-    flex-wrap: wrap;
+    width: 100%;             /* asegurar que ocupe todo el ancho disponible */
+}
+
+/* Estilo para los botones individuales */
+.hero-buttons a,
+.hero-buttons button {
+    flex: 0 1 auto;           /* no crecer pero sí reducirse */
+    width: auto;              /* tamaño automático basado en contenido */
+    max-width: 45%;           /* máximo 45% del contenedor para dejar espacio */
+    min-width: 120px;         /* ancho mínimo */
+    display: inline-block;    /* comportamiento inline-block */
+    margin: 0;                /* eliminar cualquier margen */
+}
+
+/* Asegurar que no hay bloques extra que fuercen saltos de línea */
+.hero-buttons > * {
+    display: inline-block;
+    white-space: nowrap;     /* evitar que el texto se rompa */
+}
+
+/* Estilo para dispositivos móviles pequeños */
+@media (max-width: 480px) {
+    .hero-buttons {
+        flex-direction: column;  /* en móviles muy pequeños, volver a vertical */
+    }
+    
+    .hero-buttons a,
+    .hero-buttons button {
+        width: 100%;         /* ancho completo en móviles pequeños */
+        max-width: 100%;     /* máximo ancho en móviles pequeños */
+    }
 }
 
 /* Formas decorativas en Hero */
@@ -1250,7 +1275,7 @@ ul {
         flex-direction: column;
         align-items: center;
         justify-content: center;
-        gap: 30px;
+        gap: 50px;
         padding: 40px 0;
         transform: translateY(-150%);
         opacity: 0;
